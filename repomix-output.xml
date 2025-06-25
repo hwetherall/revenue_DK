@@ -1,0 +1,1710 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+business-model-classifier/.env
+business-model-classifier/FILE_UPLOAD_GUIDE.md
+business-model-classifier/index.html
+business-model-classifier/package.json
+business-model-classifier/postcss.config.js
+business-model-classifier/prisma/.gitkeep
+business-model-classifier/README.md
+business-model-classifier/src/client/App.tsx
+business-model-classifier/src/client/components/BusinessForm.tsx
+business-model-classifier/src/client/components/ClassificationTable.tsx
+business-model-classifier/src/client/components/FileUpload.tsx
+business-model-classifier/src/client/index.css
+business-model-classifier/src/client/lib/api.ts
+business-model-classifier/src/client/main.tsx
+business-model-classifier/src/server/index.ts
+business-model-classifier/src/server/prompts/architecturePrompt.ts
+business-model-classifier/src/server/prompts/customerPrompt.ts
+business-model-classifier/src/server/prompts/productTypePrompt.ts
+business-model-classifier/src/server/prompts/revenuePrompt.ts
+business-model-classifier/src/server/routes/classify.ts
+business-model-classifier/src/server/routes/upload.ts
+business-model-classifier/src/server/types.ts
+business-model-classifier/tailwind.config.js
+business-model-classifier/tsconfig.json
+business-model-classifier/vite.config.ts
+package.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="business-model-classifier/.env">
+VITE_OPENROUTER_API_KEY=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
+VITE_GROQ_API_KEY=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
+
+# Supabase Configuration
+# Get these from your Supabase project settings
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
+
+# OpenAI Configuration
+# Get this from your OpenAI API account
+OPENAI_API_KEY=sk-your-openai-api-key-here
+</file>
+
+<file path="business-model-classifier/FILE_UPLOAD_GUIDE.md">
+# PDF Upload Feature Guide
+
+## Overview
+The Business Model Classifier now supports uploading PDF pitch decks to automatically extract company information and run classification analysis.
+
+## How It Works
+
+### 1. Upload Interface
+- Switch to "Upload PDF" mode using the tab switcher
+- Drag and drop a PDF file or click to browse
+- Maximum file size: 10MB
+- Only PDF files are accepted
+
+### 2. Text Extraction
+- The system automatically extracts text from the PDF
+- Shows a preview of the extracted content
+- Displays character count and page information
+
+### 3. Classification
+- Click "Classify Business Model" to run the analysis
+- Uses the filename as the business name
+- Uses the extracted text as the business description
+- Runs all four classification agents:
+  - Customer segments
+  - Revenue model
+  - Architecture type
+  - Product type
+
+## Technical Implementation
+
+### Backend
+- **Route**: `POST /upload/pdf`
+- **Dependencies**: `@fastify/multipart`, `pdf-parse`
+- **File validation**: MIME type and size checks
+- **Text extraction**: Uses pdf-parse library
+
+### Frontend
+- **Component**: `FileUpload.tsx`
+- **Features**: Drag-and-drop, file validation, progress indication
+- **Integration**: Seamless with existing classification workflow
+
+## API Endpoints
+
+### Upload PDF
+```
+POST /upload/pdf
+Content-Type: multipart/form-data
+
+Response:
+{
+  "filename": "company-pitch.pdf",
+  "extractedText": "...",
+  "pageCount": 10,
+  "success": true
+}
+```
+
+## Error Handling
+- Invalid file types rejected
+- File size limits enforced
+- Empty PDFs detected
+- Network errors handled gracefully
+- User-friendly error messages
+
+## Next Steps
+This is the foundation for PDF processing. Future enhancements could include:
+- Company information extraction (name, industry, etc.)
+- Structured data parsing
+- Multiple file upload
+- PDF preprocessing and cleaning
+</file>
+
+<file path="business-model-classifier/index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Model Classifier</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/client/main.tsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="business-model-classifier/package.json">
+{
+  "name": "business-model-classifier",
+  "version": "1.0.0",
+  "description": "AI-powered business model classification app",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "tsx watch src/server/index.ts",
+    "dev:client": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "start": "node dist/server/index.js"
+  },
+  "dependencies": {
+    "@fastify/cors": "^8.5.0",
+    "@fastify/multipart": "^7.7.3",
+    "dotenv": "^16.5.0",
+    "fastify": "^4.28.1",
+    "openai": "^5.6.0",
+    "p-retry": "^6.2.1",
+    "pdf-parse": "^1.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "@types/pdf-parse": "^1.1.5",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
+</file>
+
+<file path="business-model-classifier/postcss.config.js">
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+</file>
+
+<file path="business-model-classifier/prisma/.gitkeep">
+
+</file>
+
+<file path="business-model-classifier/README.md">
+# Business Model Classifier
+
+An AI-powered app that classifies business models across 4 key dimensions using parallel AI agents.
+
+## Features
+
+- **Customer Segment Classification**: B2C, B2B-SME, B2B-Enterprise, B2G
+- **Revenue Model Analysis**: Subscription, Licensing, Commission, Fee-for-Service, etc.
+- **Architecture Classification**: Platform vs Pipeline business models
+- **Product Type Analysis**: Physical Goods, Digital Goods, Services, Hybrid
+
+## Tech Stack
+
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS
+- **Backend**: Fastify + TypeScript
+- **AI**: OpenAI API (via OpenRouter)
+- **Validation**: Zod
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+cd business-model-classifier
+npm install
+```
+
+### 2. Environment Configuration
+
+Create a `.env` file in the project root:
+
+```bash
+# OpenRouter API Key (for accessing various models via OpenRouter)
+VITE_OPENROUTER_API_KEY=sk-or-v1-your_openrouter_key_here
+
+# Groq API Key (for fast inference, alternative to OpenRouter)
+VITE_GROQ_API_KEY=gsk_your_groq_key_here
+
+# Optional: Specify which API provider to use (openrouter or groq)
+# Defaults to 'openrouter'
+API_PROVIDER=openrouter
+
+# Optional: Specify which model to use
+# For OpenRouter: openai/gpt-4o-mini, anthropic/claude-3-haiku, etc.
+# For Groq: llama3-8b-8192, mixtral-8x7b-32768, etc.
+# Defaults to openai/gpt-4o-mini (OpenRouter) or llama3-8b-8192 (Groq)
+LLM_MODEL=openai/gpt-4o-mini
+
+# Optional: Server port (defaults to 3001)
+PORT=3001
+```
+
+**API Provider Options:**
+- **OpenRouter**: Access to multiple AI models including GPT-4, Claude, Llama, etc.
+- **Groq**: Ultra-fast inference with Llama and Mixtral models
+
+**Switching API Providers:**
+```bash
+# Use OpenRouter (default)
+API_PROVIDER=openrouter
+LLM_MODEL=openai/gpt-4o-mini
+
+# Use Groq for faster responses
+API_PROVIDER=groq
+LLM_MODEL=llama3-8b-8192
+```
+
+### 3. Start Development Server
+
+```bash
+# Start both frontend and backend
+npm run dev
+
+# Or start them separately:
+npm run dev:server  # Backend on http://localhost:3001
+npm run dev:client  # Frontend on http://localhost:5173
+```
+
+## Usage
+
+1. Open your browser to `http://localhost:5173`
+2. Enter a business name and description
+3. Click "Classify" to get AI analysis across all 4 dimensions
+4. View results in the comprehensive classification table
+
+## API Endpoints
+
+### POST `/classify`
+
+Classifies a business across all dimensions.
+
+**Request Body:**
+```json
+{
+  "name": "Business Name",
+  "description": "Detailed business description..."
+}
+```
+
+**Response:**
+```json
+{
+  "customer": {
+    "main": "B2B-SME",
+    "other": ["B2C"],
+    "justification": "Primarily targets small businesses..."
+  },
+  "revenue": {
+    "main": "Subscription",
+    "other": ["Commission"],
+    "justification": "Monthly recurring revenue model..."
+  },
+  "architecture": {
+    "main": "Platform",
+    "other": [],
+    "justification": "Connects multiple parties..."
+  },
+  "productType": {
+    "main": "Digital Goods",
+    "other": ["Service"],
+    "justification": "Software-based solution..."
+  }
+}
+```
+
+## Project Structure
+
+```
+src/
+├── client/          # React frontend
+│   ├── components/  # UI components
+│   ├── lib/        # API client
+│   └── main.tsx    # Entry point
+└── server/         # Fastify backend
+    ├── prompts/    # AI agent prompts
+    ├── routes/     # API routes
+    └── types.ts    # Shared types
+```
+
+## Building for Production
+
+```bash
+npm run build
+npm start
+```
+</file>
+
+<file path="business-model-classifier/src/client/App.tsx">
+import { useState, useEffect } from 'react';
+import { classifyBusiness, ClassificationResponse } from './lib/api';
+import BusinessForm from './components/BusinessForm';
+import ClassificationTable from './components/ClassificationTable';
+import FileUpload from './components/FileUpload';
+
+export default function App() {
+  const [data, setData] = useState<ClassificationResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [serverStatus, setServerStatus] = useState<string>('Checking...');
+  const [inputMode, setInputMode] = useState<'manual' | 'upload'>('manual');
+  const [extractedData, setExtractedData] = useState<{ filename: string; text: string } | null>(null);
+
+  // Check server health on mount
+  useEffect(() => {
+    fetch('/health')
+      .then(res => res.json())
+      .then(data => setServerStatus('Backend Connected ✅'))
+      .catch(err => setServerStatus('Backend Not Responding ❌'));
+  }, []);
+
+  const handleSubmit = async (name: string, description: string) => {
+    setLoading(true);
+    setError(null);
+    setData(null);
+    try {
+      const res = await classifyBusiness(name, description);
+      setData(res);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileExtracted = (filename: string, extractedText: string) => {
+    setExtractedData({ filename, text: extractedText });
+    setInputMode('upload');
+    setError(null);
+    setData(null);
+  };
+
+  const handleProcessFile = async () => {
+    if (!extractedData) return;
+    
+    // Use the filename as the business name and the extracted text as description
+    await handleSubmit(extractedData.filename.replace('.pdf', ''), extractedData.text);
+  };
+
+  const handleSwitchMode = (mode: 'manual' | 'upload') => {
+    setInputMode(mode);
+    setError(null);
+    setData(null);
+    if (mode === 'manual') {
+      setExtractedData(null);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="mx-auto max-w-4xl px-4">
+        <h1 className="mb-8 text-4xl font-bold text-gray-900">
+          Business Model Classifier
+        </h1>
+        
+        <div className="mb-4 text-sm text-gray-600">
+          Server Status: <span className="font-medium">{serverStatus}</span>
+        </div>
+        
+        <div className="rounded-lg bg-white p-6 shadow-lg">
+          {/* Mode Switcher */}
+          <div className="mb-6 flex space-x-1 rounded-lg bg-gray-100 p-1">
+            <button
+              onClick={() => handleSwitchMode('manual')}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                inputMode === 'manual'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Manual Input
+            </button>
+            <button
+              onClick={() => handleSwitchMode('upload')}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                inputMode === 'upload'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Upload PDF
+            </button>
+          </div>
+
+          {/* Input Method */}
+          {inputMode === 'manual' ? (
+            <BusinessForm onSubmit={handleSubmit} loading={loading} />
+          ) : (
+            <div className="space-y-4">
+              <FileUpload onFileExtracted={handleFileExtracted} loading={loading} />
+              
+              {extractedData && (
+                <div className="space-y-4">
+                  <div className="rounded-md bg-green-50 p-4">
+                    <h3 className="font-medium text-green-800">
+                      ✅ PDF Processed: {extractedData.filename}
+                    </h3>
+                    <p className="mt-1 text-sm text-green-700">
+                      Extracted {extractedData.text.length} characters of text
+                    </p>
+                  </div>
+                  
+                  <div className="rounded-md bg-gray-50 p-4">
+                    <h4 className="font-medium text-gray-800 mb-2">Extracted Text Preview:</h4>
+                    <div className="text-sm text-gray-600 max-h-32 overflow-y-auto">
+                      {extractedData.text.substring(0, 500)}
+                      {extractedData.text.length > 500 && '...'}
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={handleProcessFile}
+                    disabled={loading}
+                    className="w-full rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Classifying…' : 'Classify Business Model'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {error && (
+            <div className="mt-4 rounded-md bg-red-50 p-4">
+              <p className="text-sm text-red-800">Error: {error}</p>
+            </div>
+          )}
+
+          {data && <ClassificationTable result={data} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="business-model-classifier/src/client/components/BusinessForm.tsx">
+import { FormEvent, useState } from 'react';
+
+interface Props {
+  onSubmit: (name: string, description: string) => void;
+  loading?: boolean;
+}
+
+export default function BusinessForm({ onSubmit, loading = false }: Props) {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!name.trim() || !description.trim()) return;
+    onSubmit(name.trim(), description.trim());
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Business name
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          disabled={loading}
+          required
+          placeholder="e.g., Uber, Netflix, Amazon"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Description
+        </label>
+        <textarea
+          className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          rows={4}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          disabled={loading}
+          required
+          placeholder="Describe the business model, what it does, how it makes money..."
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        disabled={loading}
+      >
+        {loading ? 'Classifying…' : 'Classify Business Model'}
+      </button>
+    </form>
+  );
+}
+</file>
+
+<file path="business-model-classifier/src/client/components/ClassificationTable.tsx">
+interface AgentResult {
+    main: string;
+    other?: string[];
+    justification: string;
+  }
+  
+  interface ClassificationResponse {
+    customer: AgentResult;
+    revenue: AgentResult;
+    architecture: AgentResult;
+    productType: AgentResult;
+  }
+  
+  interface Props {
+    result: ClassificationResponse;
+  }
+  
+  export default function ClassificationTable({ result }: Props) {
+    const rows: [string, AgentResult][] = [
+      ['Customer Segment', result.customer],
+      ['Revenue Model', result.revenue],
+      ['Architecture', result.architecture],
+      ['Product Type', result.productType],
+    ];
+  
+    return (
+      <div className="mt-8 overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full border-collapse bg-white">
+          <thead>
+            <tr className="bg-gray-50 text-left">
+              <th className="table-cell font-semibold text-gray-900">Category</th>
+              <th className="table-cell font-semibold text-gray-900">Primary</th>
+              <th className="table-cell font-semibold text-gray-900">Secondary / Other</th>
+              <th className="table-cell font-semibold text-gray-900">Justification</th>
+            </tr>
+          </thead>
+  
+          <tbody>
+            {rows.map(([label, data]) => (
+              <tr key={label} className="hover:bg-gray-50">
+                <td className="table-cell font-medium text-gray-900">{label}</td>
+                <td className="table-cell">
+                  <span className="inline-block rounded-full bg-blue-100 px-2 py-1 text-sm font-medium text-blue-800">
+                    {data.main}
+                  </span>
+                </td>
+                <td className="table-cell text-gray-600">
+                  {data.other && data.other.length ? data.other.join(', ') : '—'}
+                </td>
+                <td className="table-cell text-sm text-gray-600">{data.justification}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
+</file>
+
+<file path="business-model-classifier/src/client/components/FileUpload.tsx">
+import { useState, useRef } from 'react';
+
+interface FileUploadProps {
+  onFileExtracted: (filename: string, extractedText: string) => void;
+  loading?: boolean;
+}
+
+interface UploadResponse {
+  filename: string;
+  extractedText: string;
+  pageCount: number;
+  success: boolean;
+}
+
+export default function FileUpload({ onFileExtracted, loading = false }: FileUploadProps) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File) => {
+    if (!file) return;
+
+    // Validate file type
+    if (file.type !== 'application/pdf') {
+      setError('Please select a PDF file');
+      return;
+    }
+
+    // Validate file size (50MB limit to match server)
+    if (file.size > 50 * 1024 * 1024) {
+      setError('File size must be less than 50MB');
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/upload/pdf', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const data: UploadResponse = await response.json();
+      onFileExtracted(data.filename, data.extractedText);
+      
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      handleFile(e.target.files[0]);
+    }
+  };
+
+  const handleClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  return (
+    <div className="space-y-4">
+      <div
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+          dragActive
+            ? 'border-blue-500 bg-blue-50'
+            : 'border-gray-300 hover:border-gray-400'
+        } ${uploading || loading ? 'opacity-50 pointer-events-none' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={handleClick}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf"
+          onChange={handleFileInput}
+          className="hidden"
+          disabled={uploading || loading}
+        />
+        
+        <div className="space-y-2">
+          <div className="text-4xl">📄</div>
+          <div className="text-lg font-medium text-gray-700">
+            {uploading ? 'Processing PDF...' : 'Upload PDF Pitch Deck'}
+          </div>
+          <div className="text-sm text-gray-500">
+            Drag and drop your PDF here, or click to browse
+          </div>
+          <div className="text-xs text-gray-400">
+            Maximum file size: 50MB
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="rounded-md bg-red-50 p-4">
+          <p className="text-sm text-red-800">{error}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+</file>
+
+<file path="business-model-classifier/src/client/index.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure body has basic styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom styles for better form and table appearance */
+@layer components {
+  .form-input {
+    @apply mt-1 w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+  }
+  
+  .btn-primary {
+    @apply rounded-md bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .table-cell {
+    @apply border border-gray-300 px-3 py-2;
+  }
+}
+</file>
+
+<file path="business-model-classifier/src/client/lib/api.ts">
+export interface AgentResult {
+    main: string;
+    other?: string[];
+    justification: string;
+  }
+  
+  export interface ClassificationResponse {
+    customer: AgentResult;
+    revenue: AgentResult;
+    architecture: AgentResult;
+    productType: AgentResult;
+  }
+  
+  /**
+   * Calls the backend POST /classify endpoint.
+   * Adjust the URL or add a Vite proxy if your server runs on a different port.
+   */
+  export async function classifyBusiness(
+  name: string,
+  description: string,
+): Promise<ClassificationResponse> {
+  const res = await fetch('/classify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(
+      errorData.message || `Server error (${res.status}): ${res.statusText}`
+    );
+  }
+
+  return res.json() as Promise<ClassificationResponse>;
+}
+</file>
+
+<file path="business-model-classifier/src/client/main.tsx">
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+import './index.css'; // Tailwind / your own styles
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
+</file>
+
+<file path="business-model-classifier/src/server/index.ts">
+/**
+ * Fastify bootstrap for the Business-Model Classifier MVP.
+ * Run with:  npx ts-node-dev src/server/index.ts
+ */
+import 'dotenv/config'; // This will load .env file automatically
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
+import classifyRoutes from './routes/classify';
+import uploadRoutes from './routes/upload';
+
+const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
+
+async function buildServer() {
+  const app = Fastify({ logger: true });
+  await app.register(cors, { origin: true });
+  await app.register(multipart, {
+    // Configure multipart limits for larger PDF files
+    limits: {
+      fileSize: 50 * 1024 * 1024, // 50MB max file size
+      files: 1, // Allow 1 file upload
+      fieldSize: 1024 * 1024, // 1MB field size
+      fields: 10 // Max 10 fields
+    }
+  });
+  
+  // Health check endpoint
+  app.get('/health', async (request, reply) => {
+    return { status: 'ok', message: 'Server is running' };
+  });
+  
+  // Test endpoint to check AI configuration
+  app.get('/test-ai', async (request, reply) => {
+    const provider = process.env.API_PROVIDER || 'openrouter';
+    const model = process.env.LLM_MODEL || (provider === 'groq' ? 'llama3-8b-8192' : 'openai/gpt-4o-mini');
+    return { 
+      provider,
+      model,
+      hasApiKey: provider === 'groq' 
+        ? !!process.env.VITE_GROQ_API_KEY 
+        : !!process.env.VITE_OPENROUTER_API_KEY
+    };
+  });
+  
+  await app.register(classifyRoutes, { prefix: '/classify' });
+  await app.register(uploadRoutes, { prefix: '/upload' });
+
+  return app;
+}
+
+buildServer()
+  .then((app) =>
+    app.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
+      if (err) {
+        app.log.error(err);
+        process.exit(1);
+      }
+      app.log.info(`Server listening at ${address}`);
+    }),
+  )
+  .catch((err) => {
+    console.error('Failed to start server:', err);
+    process.exit(1);
+  });
+</file>
+
+<file path="business-model-classifier/src/server/prompts/architecturePrompt.ts">
+export const architecturePrompt = (name: string, desc: string) => `
+You are a business architecture expert using a systematic classification framework.
+
+Business Name: ${name}
+Business Description: ${desc}
+
+CLASSIFICATION FRAMEWORK:
+
+Step 1 - Analyze Core Characteristics:
+
+A. VALUE FLOW PATTERN:
+- Pipe: One-way (make → sell to end user)
+- Platform: Two-sided (enable exchanges between parties) 
+- Layer: Enable others' value flows (infrastructure/API)
+- Hybrid: Combination of patterns
+
+B. PRIMARY ACTIVITIES:
+- Pipe: Production, distribution, linear value chain
+- Platform: Matchmaking, curation, governance, trust & safety
+- Layer: API operations, infrastructure scaling
+- Hybrid: Both production AND orchestration
+
+C. NETWORK EFFECTS:
+- Pipe: None/weak network effects
+- Platform: Strong (direct & indirect)
+- Layer: Moderate (tech ecosystem)
+- Hybrid: Selective
+
+D. ASSET INTENSITY:
+- Pipe: Medium-High (manufacturing, inventory)
+- Platform: Low-Medium (software/operations)
+- Layer: High (infrastructure capex)
+- Hybrid: Varies
+
+Step 2 - Apply Decision Logic:
+- If facilitates transactions between user groups with strong network effects → Platform
+- If produces/transforms and sells linearly → Pipe  
+- If provides programmable infrastructure others build upon → Layer
+- If combines owned production with ecosystem orchestration → Hybrid
+
+Step 3 - Validate with Revenue Model:
+- Pipe: Unit markup, subscriptions, service annuities
+- Platform: Take-rates, listing fees, advertising
+- Layer: Usage-based billing, API calls
+- Hybrid: Mixed revenue streams
+
+ANALYSIS PROCESS:
+1. Identify the CORE value creation mechanism
+2. Determine primary value flow pattern
+3. Assess network effects strength
+4. Validate with revenue model alignment
+5. Classify based on dominant pattern
+
+Respond with ONLY a valid JSON object in this exact format:
+{
+  "main": "Platform",
+  "other": ["Layer"],
+  "justification": "Based on value flow analysis, this business facilitates two-sided interactions between [user groups] with strong network effects where [specific evidence]. Revenue through [model] confirms Platform classification."
+}
+
+Rules:
+- "main" must be exactly "Pipe", "Platform", "Layer", or "Hybrid"
+- "other" must be an array (can be empty [] or contain secondary characteristics)
+- "justification" must cite specific framework criteria and evidence
+- Return ONLY the JSON, no other text`;
+</file>
+
+<file path="business-model-classifier/src/server/prompts/customerPrompt.ts">
+export const customerPrompt = (name: string, desc: string) => `
+You are a go-to-market strategist using a systematic customer segmentation framework.
+
+Business Name: ${name}
+Business Description: ${desc}
+
+CUSTOMER CLASSIFICATION FRAMEWORK:
+
+Step 1 - Analyze Primary Customer Characteristics:
+
+A. PRIMARY CUSTOMER TYPE:
+- B2C: Individual consumers buying for personal use
+- B2B-SME: Small/medium businesses (2-500 employees)
+- B2B-Enterprise: Large corporations (>$1B revenue, buying committees)
+- B2G: Government agencies, ministries, defense, SOEs
+- B2B2C: Business customers who serve end consumers through your product
+- C2C: Individual peers transacting with each other (marketplace)
+- B2N: Non-profits, NGOs, foundations, social enterprises
+
+B. DEAL SIZE INDICATORS:
+- Very Low: <$100 typical transaction
+- Low: $100-$10K per deal
+- Medium: $10K-$100K per deal  
+- High: $100K-$1M+ per deal
+
+C. SALES CYCLE LENGTH:
+- Minutes-Hours: Immediate purchase decisions
+- Days-Weeks: Short consideration period
+- Weeks-Months: Medium sales cycle with evaluation
+- Months-Years: Long enterprise/government sales cycles
+
+D. RELATIONSHIP DEPTH REQUIRED:
+- Transactional: One-off purchases, minimal relationship
+- Relational: Ongoing service relationship, account management
+- Strategic Partnership: Deep integration, joint planning
+- Mission-Aligned: Values-based, impact-focused partnerships
+
+Step 2 - Apply Customer Type Decision Logic:
+
+PRIMARY CLASSIFICATION RULES:
+1. If end users are individuals buying for personal use → B2C
+2. If customers are small businesses with limited IT/budget → B2B-SME  
+3. If customers are large enterprises with buying committees → B2B-Enterprise
+4. If customers are government entities with public procurement → B2G
+5. If business customers embed your product for their end users → B2B2C
+6. If individuals transact with each other through your platform → C2C
+7. If customers are mission-driven organizations with grant funding → B2N
+
+VALIDATION CRITERIA:
+- B2C: Mobile-first, social proof driven, CAC:LTV ratios, viral growth
+- B2B-SME: Self-serve onboarding, product-led growth, seat-based pricing
+- B2B-Enterprise: RFP processes, POCs, multi-year contracts, custom integrations
+- B2G: Tender processes, compliance requirements, public transparency
+- B2B2C: White-label technology, partner enablement, dual support model
+- C2C: Two-sided marketplace, trust & safety, network effects, transaction fees
+- B2N: Impact measurement, grant cycles, sliding scale pricing
+
+Step 3 - Validate with Revenue & Sales Patterns:
+
+REVENUE LOGIC ALIGNMENT:
+- B2C: One-off sales, freemium-to-paid, ads, micro-transactions
+- B2B-SME: Per-seat SaaS MRR, usage-based billing, implementation fees
+- B2B-Enterprise: Enterprise licenses, professional services 15-30% of ACV
+- B2G: Fixed-price contracts, cost-plus, performance-based payments
+- B2B2C: Wholesale pricing, revenue sharing, per-API call fees
+- C2C: Take-rate 5-30%, listing fees, promoted placement
+- B2N: Grant-subsidized, sliding-scale, impact-based bonuses
+
+SALES & DELIVERY PATTERNS:
+- B2C: Paid ads, SEO, influencer marketing, self-serve
+- B2B-SME: Content marketing, webinars, inside sales, product-led growth
+- B2B-Enterprise: Named account sales, consultative selling, RFP responses
+- B2G: Bid/no-bid decisions, formal tenders, local partnerships
+- B2B2C: Strategic alliance negotiations, technical enablement
+- C2C: Growth loops, geographic seeding, dual-sided acquisition
+- B2N: Relationship-driven, pilot programs, impact demonstrations
+
+Step 4 - Check for Mixed Models:
+
+HYBRID PATTERNS:
+- Prosumer SaaS (B2C + B2B-SME): Individual users who expand to team plans
+- GovTech Platform (B2B2G): Technology companies serving government through partners
+- Marketplace + Native Supply: Platform with some owned inventory/services
+- Mission-Blended (B2N ↔ B2B): Serving both commercial and non-profit sectors
+
+If multiple patterns apply significantly, classify as primary with secondary in "other" array.
+
+ANALYSIS PROCESS:
+1. Identify WHO is actually making the purchase decision
+2. Analyze deal size and sales cycle patterns from description
+3. Determine relationship depth and revenue model
+4. Validate against typical sales/delivery patterns
+5. Check for hybrid characteristics
+6. Classify based on dominant customer pattern
+
+Respond with ONLY a valid JSON object in this exact format:
+{
+  "main": "B2B-SME",
+  "other": ["B2C"],
+  "justification": "Primary customer base consists of [specific customer type] with [deal size] transactions and [sales cycle] cycle. Revenue through [model] and [sales pattern] confirms B2B-SME classification, with some B2C characteristics in [specific area]."
+}
+
+Rules:
+- "main" must be exactly "B2C", "B2B-SME", "B2B-Enterprise", "B2G", "B2B2C", "C2C", or "B2N"
+- "other" must be an array (can be empty [] or contain secondary characteristics)
+- "justification" must cite specific framework criteria and evidence from the description
+- Focus on WHO makes the buying decision and HOW they buy
+- Return ONLY the JSON, no other text`;
+</file>
+
+<file path="business-model-classifier/src/server/prompts/productTypePrompt.ts">
+export const productTypePrompt = (name: string, desc: string) => `
+You are a product manager analyzing product offerings.
+
+Business Name: ${name}
+Business Description: ${desc}
+
+Classify the PRIMARY product type. Choose ONE from:
+- Physical Goods
+- Digital Goods
+- Service
+- Hybrid
+
+Respond with ONLY a valid JSON object in this exact format:
+{
+  "main": "Digital Goods",
+  "other": ["Service"],
+  "justification": "Primary offering is digital content (music) with service elements"
+}
+
+Rules:
+- "main" must be exactly one of the allowed categories
+- "other" must be an array (can be empty [])
+- "justification" must be a string explaining your choice
+- Return ONLY the JSON, no other text`;
+</file>
+
+<file path="business-model-classifier/src/server/prompts/revenuePrompt.ts">
+export const revenuePrompt = (name: string, desc: string) => `
+You are a business model analyst using a systematic revenue classification framework.
+
+Business Name: ${name}
+Business Description: ${desc}
+
+REVENUE MODEL CLASSIFICATION FRAMEWORK:
+
+Step 1 - Analyze Revenue Generation Mechanism:
+
+A. PRIMARY REVENUE MODELS (Choose ONE):
+
+FEE-FOR-SERVICE: Charging per project, per hour, or per outcome for specialized services
+- Examples: Consulting firms, law firms, creative agencies, freelance professionals
+- Key Indicators: Project-based billing, hourly rates, outcome-based fees, expertise premiums
+
+MARKUP-RESELL: Buying goods at lower cost (wholesale) and selling at higher price (retail)
+- Examples: Traditional retail stores, distributors, e-commerce drop-shippers
+- Key Indicators: Buy-low sell-high logic, inventory management, supplier relationships
+
+LICENSING: Selling rights to use/reproduce intellectual property, technology, or content
+- Examples: Software licensing, franchising fees, patent licensing
+- Key Indicators: IP ownership, royalty payments, minimal marginal costs, scalable reach
+
+SUBSCRIPTION: Recurring payments (monthly/yearly) for ongoing access to product/service
+- Examples: Netflix, Salesforce, gym memberships
+- Key Indicators: Recurring billing, predictable revenue, ongoing service obligations
+
+PRODUCTION-UNIT-SALES: Customers pay set price for specific item/product at purchase time
+- Examples: Manufacturing, restaurants, books, single-purchase apps, mining
+- Key Indicators: One-time transactions, immediate cash flow, production/inventory costs
+
+COMMISSION: Earning fee/percentage for facilitating transactions between parties
+- Examples: Real estate agents, stock brokerages, marketplace platforms (eBay, Etsy)
+- Key Indicators: Transaction facilitation, percentage-based fees, partner dependency
+
+ADVERTISING: Monetizing user attention/traffic by selling ad placements and sponsorships
+- Examples: Ad-based apps, online media/news sites, social media platforms
+- Key Indicators: Free user access, advertiser payments, audience monetization
+
+RENTAL: Granting temporary access to assets/property for fee (not ownership transfer)
+- Examples: Equipment rentals, real estate leases, vehicle rentals
+- Key Indicators: Temporary access, asset retention, usage-based fees
+
+Step 2 - Apply Revenue Model Decision Logic:
+
+TIMING ANALYSIS:
+- One-time payment → Production-Unit-Sales, Fee-for-Service, or Markup-Resell
+- Recurring payment → Subscription or Rental
+- Transaction-based → Commission or Advertising
+- Rights-based → Licensing
+
+VALUE EXCHANGE ANALYSIS:
+- Direct product/service delivery → Production-Unit-Sales, Markup-Resell, Fee-for-Service
+- Access/usage rights → Subscription, Rental, Licensing
+- Facilitation/intermediation → Commission, Advertising
+
+ASSET RELATIONSHIP:
+- Own and sell → Production-Unit-Sales, Markup-Resell
+- License IP/rights → Licensing
+- Facilitate others' transactions → Commission
+- Rent/lease assets → Rental
+- Provide ongoing access → Subscription
+- Monetize attention → Advertising
+- Deliver custom work → Fee-for-Service
+
+Step 3 - Validate with Business Characteristics:
+
+REVENUE PREDICTABILITY:
+- High: Subscription, Rental, Licensing (recurring)
+- Medium: Fee-for-Service (repeat clients), Commission (steady volume)
+- Low: Production-Unit-Sales, Markup-Resell, Advertising (market dependent)
+
+SCALABILITY PATTERNS:
+- High scalability: Licensing, Subscription, Advertising (low marginal costs)
+- Medium scalability: Commission, Rental
+- Lower scalability: Fee-for-Service, Production-Unit-Sales, Markup-Resell
+
+CASH FLOW TIMING:
+- Immediate: Production-Unit-Sales, Markup-Resell, Fee-for-Service
+- Recurring: Subscription, Rental, Licensing
+- Variable: Commission, Advertising (tied to performance/market)
+
+Step 4 - Check for Mixed Models:
+
+HYBRID REVENUE COMBINATIONS:
+- Freemium + Subscription: Free tier with paid upgrades
+- Product + Service: Unit sales with ongoing support/maintenance
+- Commission + Advertising: Marketplaces with both transaction fees and ad revenue
+- Licensing + Fee-for-Service: IP licensing with implementation consulting
+
+If multiple models apply significantly, identify the PRIMARY revenue source and note others.
+
+ANALYSIS PROCESS:
+1. Identify the CORE method of generating revenue
+2. Analyze timing (one-time vs recurring vs transaction-based)
+3. Determine value exchange mechanism
+4. Validate with scalability and cash flow patterns
+5. Check for secondary revenue streams
+6. Classify based on dominant revenue pattern
+
+Respond with ONLY a valid JSON object in this exact format:
+{
+  "main": "Subscription",
+  "other": ["Advertising"],
+  "justification": "Primary revenue through [specific mechanism] with [payment timing] and [value delivery]. Business model shows [scalability characteristics] and [cash flow pattern] which confirms [classification]. Secondary revenue from [other mechanism] represents [percentage/significance]."
+}
+
+Rules:
+- "main" must be exactly "Fee-for-Service", "Markup-Resell", "Licensing", "Subscription", "Production-Unit-Sales", "Commission", "Advertising", or "Rental"
+- "other" must be an array (can be empty [] or contain secondary revenue models)
+- "justification" must cite specific revenue mechanism, timing, and validation criteria
+- Focus on the PRIMARY source of revenue generation
+- Return ONLY the JSON, no other text`;
+</file>
+
+<file path="business-model-classifier/src/server/routes/classify.ts">
+/**
+ * POST /classify
+ * Body: { name: string; description: string }
+ * Returns: {
+ *   customer:   AgentResult;
+ *   revenue:    AgentResult;
+ *   architecture: AgentResult;
+ *   productType:  AgentResult;
+ * }
+ */
+
+import { FastifyInstance, FastifyPluginOptions } from 'fastify';
+import { OpenAI } from 'openai';
+import pRetry from 'p-retry';
+import { z } from 'zod';
+import { customerPrompt } from '../prompts/customerPrompt';
+import { revenuePrompt } from '../prompts/revenuePrompt';
+import { architecturePrompt } from '../prompts/architecturePrompt';
+import { productTypePrompt } from '../prompts/productTypePrompt';
+import { AgentResultSchema } from '../types';
+
+// API Configuration - supports both OpenRouter and Groq
+type ApiProvider = 'openrouter' | 'groq';
+const API_PROVIDER = (process.env.API_PROVIDER === 'groq' ? 'groq' : 'openrouter') as ApiProvider;
+const OPENROUTER_KEY = process.env.VITE_OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+const GROQ_KEY = process.env.VITE_GROQ_API_KEY || process.env.GROQ_API_KEY;
+
+// API keys are loaded successfully
+
+// Configure OpenAI client based on provider
+const selectedKey = API_PROVIDER === 'groq' ? GROQ_KEY : OPENROUTER_KEY;
+if (!selectedKey) {
+  console.error(`No API key found for provider ${API_PROVIDER}`);
+  console.error('Available env vars:', Object.keys(process.env).filter(key => key.includes('API') || key.includes('VITE')));
+}
+
+const openai = new OpenAI({
+  apiKey: selectedKey || 'dummy-key-for-mock-testing',
+  baseURL: API_PROVIDER === 'groq' ? 'https://api.groq.com/openai/v1' : 'https://openrouter.ai/api/v1',
+});
+
+// Default models for each provider
+const DEFAULT_MODELS: Record<ApiProvider, string> = {
+  openrouter: 'openai/gpt-4o-mini',
+  groq: 'llama3-8b-8192'
+};
+
+const MODEL = process.env.LLM_MODEL ?? DEFAULT_MODELS[API_PROVIDER];
+
+export default async function classifyRoutes(
+  app: FastifyInstance,
+  _opts: FastifyPluginOptions,
+) {
+  /* ---------- Request body validation ---------- */
+  const InputSchema = z.object({
+    name: z.string().min(1),
+    description: z.string().min(10),
+  });
+
+  /* ---------- Helpers ---------- */
+  type AgentFn = (name: string, desc: string) => Promise<z.infer<typeof AgentResultSchema>>;
+
+  const callLLM = async (prompt: string, agentName: string) =>
+    pRetry(
+      async () => {
+        console.log(`\n=== ${agentName} Agent ===`);
+        console.log('Model:', MODEL);
+        console.log('Provider:', API_PROVIDER);
+        
+        const chat = await openai.chat.completions.create({
+          model: MODEL,
+          messages: [
+            { 
+              role: 'system', 
+              content: 'You are a business analyst. Always respond with ONLY valid JSON. No explanations, no markdown, just the JSON object.' 
+            },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.2,
+        });
+        
+        const raw = chat.choices[0]?.message?.content ?? '{}';
+        console.log(`Raw ${agentName} response:`, raw);
+        
+        // Clean the response - remove markdown code blocks if present
+        const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        console.log(`Cleaned ${agentName} response:`, cleaned);
+        
+        try {
+          const parsed = JSON.parse(cleaned);
+          console.log(`Parsed ${agentName} response:`, parsed);
+          return AgentResultSchema.parse(parsed);
+        } catch (parseError) {
+          console.error(`Failed to parse ${agentName} response:`, cleaned);
+          console.error('Parse error:', parseError);
+          throw new Error(`Invalid JSON from AI: ${cleaned.substring(0, 200)}...`);
+        }
+      },
+      { retries: 3, minTimeout: 500 },
+    );
+
+  const customerAgent: AgentFn = (n, d) => callLLM(customerPrompt(n, d), 'Customer');
+  const revenueAgent: AgentFn = (n, d) => callLLM(revenuePrompt(n, d), 'Revenue');
+  const architectureAgent: AgentFn = (n, d) => callLLM(architecturePrompt(n, d), 'Architecture');
+  const productTypeAgent: AgentFn = (n, d) => callLLM(productTypePrompt(n, d), 'ProductType');
+
+  /* ---------- Route ---------- */
+  app.post('/', async (request, reply) => {
+    try {
+      // Validate incoming body
+      const { name, description } = InputSchema.parse(request.body);
+
+      // Check if API key is available
+      const currentKey = API_PROVIDER === 'groq' ? GROQ_KEY : OPENROUTER_KEY;
+      if (!currentKey) {
+        throw new Error(`API key not found for provider: ${API_PROVIDER}`);
+      }
+
+      // Run four agents in parallel
+      const [customer, revenue, architecture, productType] = await Promise.all([
+        customerAgent(name, description),
+        revenueAgent(name, description),
+        architectureAgent(name, description),
+        productTypeAgent(name, description),
+      ]);
+
+      reply.send({ customer, revenue, architecture, productType });
+          } catch (error) {
+      console.error('Classification error:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        if (error.message.includes('Invalid JSON')) {
+          errorMessage = 'AI returned invalid response format. Please try again.';
+        } else if (error.message.includes('API key')) {
+          errorMessage = 'API key configuration error. Please check your .env file.';
+        }
+      }
+      
+      reply.status(500).send({ 
+        error: 'Classification failed', 
+        message: errorMessage,
+        provider: API_PROVIDER,
+        details: process.env.NODE_ENV === 'development' ? error : undefined
+      });
+    }
+  });
+}
+</file>
+
+<file path="business-model-classifier/src/server/routes/upload.ts">
+import { FastifyPluginAsync, FastifyRequest } from 'fastify';
+import pdf from 'pdf-parse';
+
+const uploadRoutes: FastifyPluginAsync = async (fastify) => {
+  // Test route to verify upload routes are registered
+  fastify.get('/test', async (request, reply) => {
+    return { message: 'Upload routes are working!' };
+  });
+
+  // Simple test route for multipart
+  fastify.post('/test-multipart', async (request, reply) => {
+    try {
+      fastify.log.info('Test multipart request received');
+      fastify.log.info('Is multipart?', request.isMultipart());
+      
+      if (request.isMultipart()) {
+        const data = await (request as any).file();
+        return { 
+          success: true, 
+          hasFile: !!data,
+          filename: data?.filename,
+          mimetype: data?.mimetype
+        };
+      } else {
+        return { success: false, error: 'Not multipart' };
+      }
+    } catch (error) {
+      fastify.log.error('Test multipart error:', error);
+      return { success: false, error: (error as Error).message };
+    }
+  });
+
+  // POST /upload - Handle PDF upload and extract text
+  fastify.post('/pdf', async (request: FastifyRequest, reply) => {
+    try {
+      fastify.log.info('PDF upload request received');
+      
+      // Simple approach: just try to get the file directly
+      let fileData;
+      try {
+        fileData = await (request as any).file();
+      } catch (fileError) {
+        fastify.log.error('Failed to parse multipart data:', fileError);
+        return reply.code(400).send({ 
+          error: 'Failed to parse uploaded file',
+          details: fileError instanceof Error ? fileError.message : 'Unknown file parsing error'
+        });
+      }
+      
+      if (!fileData) {
+        return reply.code(400).send({ error: 'No file uploaded' });
+      }
+
+      fastify.log.info('File received:', { 
+        filename: fileData.filename, 
+        mimetype: fileData.mimetype 
+      });
+      console.log('DEBUG: File received -', fileData.filename, fileData.mimetype);
+      console.log('DEBUG: File size from multipart:', fileData.file ? 'has stream' : 'no stream');
+
+      // Check if file is PDF
+      if (fileData.mimetype !== 'application/pdf') {
+        return reply.code(400).send({ error: 'Only PDF files are allowed' });
+      }
+
+      // Convert to buffer using the correct method
+      let buffer;
+      try {
+        // The @fastify/multipart file object has a different API
+        const chunks = [];
+        for await (const chunk of fileData.file) {
+          chunks.push(chunk);
+        }
+        buffer = Buffer.concat(chunks);
+        fastify.log.info('Buffer created, size:', buffer.length);
+        console.log('DEBUG: Buffer created, size:', buffer.length, 'first 20 bytes:', buffer.slice(0, 20).toString('hex'));
+      } catch (bufferError) {
+        fastify.log.error('Failed to convert to buffer:', bufferError);
+        return reply.code(500).send({ 
+          error: 'Failed to read file data',
+          details: bufferError instanceof Error ? bufferError.message : 'Unknown buffer error'
+        });
+      }
+      
+      // Extract text from PDF
+      let pdfData;
+      try {
+        fastify.log.info('Starting PDF text extraction...');
+        const bufferInfo = {
+          size: buffer.length,
+          firstBytes: buffer.slice(0, 10).toString('hex'),
+          isPDFHeader: buffer.slice(0, 4).toString() === '%PDF'
+        };
+        fastify.log.info('PDF buffer info:', bufferInfo);
+        
+        // First try with minimal options
+        fastify.log.info('Attempting PDF parse...');
+        console.log('DEBUG: About to parse PDF, buffer size:', buffer.length, 'isPDF:', buffer.slice(0, 4).toString() === '%PDF');
+        pdfData = await pdf(buffer);
+        console.log('DEBUG: PDF parsing successful!');
+        
+        fastify.log.info('PDF processed successfully:', { 
+          textLength: pdfData.text.length, 
+          pageCount: pdfData.numpages,
+          hasText: pdfData.text.trim().length > 0
+        });
+      } catch (pdfError) {
+        const errorInfo = {
+          message: pdfError instanceof Error ? pdfError.message : 'Unknown PDF error',
+          stack: pdfError instanceof Error ? pdfError.stack : undefined,
+          bufferSize: buffer.length,
+          isPDFHeader: buffer.slice(0, 4).toString() === '%PDF'
+        };
+        fastify.log.error('PDF extraction failed with details:', errorInfo);
+        console.error('PDF Error Details:', errorInfo); // Also log to console for debugging
+        
+        return reply.code(500).send({ 
+          error: 'Failed to extract text from PDF',
+          details: pdfError instanceof Error ? pdfError.message : 'Unknown PDF error',
+          bufferInfo: {
+            size: buffer.length,
+            isPDF: buffer.slice(0, 4).toString() === '%PDF'
+          }
+        });
+      }
+
+      let extractedText = pdfData.text;
+
+      // Clean and enhance extracted text for better AI processing
+      extractedText = extractedText
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .replace(/\n{3,}/g, '\n\n') // Limit consecutive line breaks
+        .trim();
+
+      // Basic validation - reduced threshold for image-heavy presentations
+      if (!extractedText || extractedText.length < 20) {
+        return reply.code(400).send({ 
+          error: 'PDF appears to be empty or text extraction failed',
+          hint: 'This might be an image-only PDF that requires OCR processing'
+        });
+      }
+
+      // Log successful extraction with business context
+      const businessKeywords = ['company', 'business', 'revenue', 'market', 'product', 'customer', 'technology'];
+      const foundKeywords = businessKeywords.filter(keyword => 
+        extractedText.toLowerCase().includes(keyword)
+      );
+      
+      fastify.log.info('Text extraction successful:', {
+        textLength: extractedText.length,
+        businessKeywords: foundKeywords,
+        hasBusinessContent: foundKeywords.length > 0
+      });
+
+      return {
+        filename: fileData.filename,
+        extractedText: extractedText,
+        pageCount: pdfData.numpages,
+        businessKeywords: foundKeywords,
+        success: true
+      };
+
+    } catch (error) {
+      fastify.log.error('Unexpected PDF upload error:', error);
+      return reply.code(500).send({ 
+        error: 'Unexpected error processing PDF file',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+};
+
+export default uploadRoutes;
+</file>
+
+<file path="business-model-classifier/src/server/types.ts">
+import { z } from 'zod';
+
+export const AgentResultSchema = z.object({
+  main: z.string(),
+  other: z.array(z.string()).optional().default([]),
+  justification: z.string(),
+});
+
+export type AgentResult = z.infer<typeof AgentResultSchema>;
+</file>
+
+<file path="business-model-classifier/tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+</file>
+
+<file path="business-model-classifier/tsconfig.json">
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "commonjs",
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "allowImportingTsExtensions": false,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
+</file>
+
+<file path="business-model-classifier/vite.config.ts">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/classify': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      },
+      '/health': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      },
+      '/upload': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
+  }
+})
+</file>
+
+<file path="package.json">
+{
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@supabase/supabase-js": "^2.50.1",
+    "dotenv": "^16.5.0",
+    "fastify": "^5.4.0",
+    "fastify-cors": "^6.0.3",
+    "openai": "^5.7.0",
+    "p-retry": "^6.2.1",
+    "pdf-parse": "^1.1.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tiktoken": "^1.0.21",
+    "xlsx": "^0.18.5",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
+</file>
+
+</files>
