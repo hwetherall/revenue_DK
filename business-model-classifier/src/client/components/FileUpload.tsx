@@ -40,7 +40,8 @@ export default function FileUpload({ onFileExtracted, loading = false }: FileUpl
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/upload/pdf', {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${apiUrl}/upload/pdf`, {
         method: 'POST',
         body: formData,
       });

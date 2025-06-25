@@ -14,10 +14,11 @@ export default function App() {
 
   // Check server health on mount
   useEffect(() => {
-    fetch('/health')
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    fetch(`${apiUrl}/health`)
       .then(res => res.json())
-      .then(data => setServerStatus('Backend Connected ✅'))
-      .catch(err => setServerStatus('Backend Not Responding ❌'));
+      .then(_data => setServerStatus('Backend Connected ✅'))
+      .catch(_err => setServerStatus('Backend Not Responding ❌'));
   }, []);
 
   const handleSubmit = async (name: string, description: string) => {

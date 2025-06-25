@@ -3,12 +3,12 @@ import pdf from 'pdf-parse';
 
 const uploadRoutes: FastifyPluginAsync = async (fastify) => {
   // Test route to verify upload routes are registered
-  fastify.get('/test', async (request, reply) => {
+  fastify.get('/test', async (_request, _reply) => {
     return { message: 'Upload routes are working!' };
   });
 
   // Simple test route for multipart
-  fastify.post('/test-multipart', async (request, reply) => {
+  fastify.post('/test-multipart', async (request, _reply) => {
     try {
       fastify.log.info('Test multipart request received');
       fastify.log.info('Is multipart?', request.isMultipart());

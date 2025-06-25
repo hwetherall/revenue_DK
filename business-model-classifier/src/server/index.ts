@@ -1,4 +1,4 @@
- /**
+/**
  * Fastify bootstrap for the Business-Model Classifier MVP.
  * Run with:  npx ts-node-dev src/server/index.ts
  */
@@ -13,7 +13,31 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 3001;
 
 async function buildServer() {
   const app = Fastify({ logger: true });
-  await app.register(cors, { origin: true });
+  
+  // Update CORS to allow your Vercel frontend
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL || 'https://business-model-classifier.vercel.app'
+  ].filter(Boolean);
+  
+  await app.register(cors, { 
+    origin: (origin, cb) => {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return cb(null, true);
+      
+      // Allow any Vercel preview deployments
+      if (origin.includes('vercel.app')) return cb(null, true);
+      
+      // Check against allowed origins
+      if (allowedOrigins.includes(origin)) return cb(null, true);
+      
+      // Reject other origins
+      cb(new Error('Not allowed by CORS'), false);
+    },
+    credentials: true
+  });
+  
   await app.register(multipart, {
     // Configure multipart limits for larger PDF files
     limits: {
@@ -25,12 +49,12 @@ async function buildServer() {
   });
   
   // Health check endpoint
-  app.get('/health', async (request, reply) => {
+  app.get('/health', async (_request, _reply) => {
     return { status: 'ok', message: 'Server is running' };
   });
   
   // Test endpoint to check AI configuration
-  app.get('/test-ai', async (request, reply) => {
+  app.get('/test-ai', async (_request, _reply) => {
     const provider = process.env.API_PROVIDER || 'openrouter';
     const model = process.env.LLM_MODEL || (provider === 'groq' ? 'llama3-8b-8192' : 'openai/gpt-4o-mini');
     return { 

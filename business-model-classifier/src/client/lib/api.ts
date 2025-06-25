@@ -19,7 +19,10 @@ export interface AgentResult {
   name: string,
   description: string,
 ): Promise<ClassificationResponse> {
-  const res = await fetch('/classify', {
+  // Use environment variable for API URL, fallback to relative path for local proxy
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  
+  const res = await fetch(`${apiUrl}/classify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ name, description }),
