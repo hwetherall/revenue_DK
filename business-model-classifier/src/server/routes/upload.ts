@@ -35,6 +35,17 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
     try {
       fastify.log.info('PDF upload request received');
       
+      // Ensure we always return JSON, even on errors
+      reply.type('application/json');
+      
+      // Check if request is multipart
+      if (!request.isMultipart()) {
+        return reply.code(400).send({ 
+          error: 'Request must be multipart/form-data',
+          success: false 
+        });
+      }
+      
       // Simple approach: just try to get the file directly
       let fileData;
       try {
@@ -43,12 +54,16 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
         fastify.log.error('Failed to parse multipart data:', fileError);
         return reply.code(400).send({ 
           error: 'Failed to parse uploaded file',
-          details: fileError instanceof Error ? fileError.message : 'Unknown file parsing error'
+          details: fileError instanceof Error ? fileError.message : 'Unknown file parsing error',
+          success: false
         });
       }
       
       if (!fileData) {
-        return reply.code(400).send({ error: 'No file uploaded' });
+        return reply.code(400).send({ 
+          error: 'No file uploaded',
+          success: false 
+        });
       }
 
       fastify.log.info('File received:', { 
@@ -60,7 +75,11 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Check if file is PDF
       if (fileData.mimetype !== 'application/pdf') {
-        return reply.code(400).send({ error: 'Only PDF files are allowed' });
+        return reply.code(400).send({ 
+          error: 'Only PDF files are allowed',
+          received: fileData.mimetype,
+          success: false 
+        });
       }
 
       // Convert to buffer using the correct method
@@ -78,7 +97,8 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
         fastify.log.error('Failed to convert to buffer:', bufferError);
         return reply.code(500).send({ 
           error: 'Failed to read file data',
-          details: bufferError instanceof Error ? bufferError.message : 'Unknown buffer error'
+          details: bufferError instanceof Error ? bufferError.message : 'Unknown buffer error',
+          success: false
         });
       }
       
@@ -120,7 +140,8 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
           bufferInfo: {
             size: buffer.length,
             isPDF: buffer.slice(0, 4).toString() === '%PDF'
-          }
+          },
+          success: false
         });
       }
 
@@ -136,7 +157,8 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
       if (!extractedText || extractedText.length < 20) {
         return reply.code(400).send({ 
           error: 'PDF appears to be empty or text extraction failed',
-          hint: 'This might be an image-only PDF that requires OCR processing'
+          hint: 'This might be an image-only PDF that requires OCR processing',
+          success: false
         });
       }
 
@@ -164,7 +186,8 @@ const uploadRoutes: FastifyPluginAsync = async (fastify) => {
       fastify.log.error('Unexpected PDF upload error:', error);
       return reply.code(500).send({ 
         error: 'Unexpected error processing PDF file',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        success: false
       });
     }
   });
